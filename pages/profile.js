@@ -2,6 +2,7 @@ import { supabase } from "../utils/supabase";
 import { useUser } from "../context/user";
 import { useEffect, useState } from "react";
 import Modal from "../components/elements/Modal";
+import HorizontalLine from "../components/elements/HorizontalLine";
 import Avatar from "../components/Avatar";
 import AvatarSelector from "../components/AvatarSelector";
 
@@ -28,8 +29,8 @@ export default function Profile() {
   useEffect(() => {
     setProfileData({
       ...profileData,
-      display_name: user.display_name || "",
-      avatar_url: user.avatar_url || "",
+      display_name: user?.display_name || "",
+      avatar_url: user?.avatar_url || "",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -45,9 +46,9 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="">Din profil</h1>
-
+    <div className="flex flex-col gap-8 px-4">
+      <h1 className="-mb-4">Din profil</h1>
+      <HorizontalLine />
       <div className="flex flex-col flex-1 items-start">
         <h2 className="mb-2">Data om deg</h2>
         <div className="flex flex-col gap-2">
@@ -103,7 +104,7 @@ export default function Profile() {
             </button>
             {showAvatarModal && (
               <Modal
-                onClick={() => {
+                setCloseModal={() => {
                   setShowAvatarModal(false);
                 }}
               >
@@ -133,7 +134,7 @@ export default function Profile() {
           <button disabled>Slett mine data</button>
         </div>
       </div>
-      <hr className="" />
+      <HorizontalLine />
       <div className="flex gap-4 items-center">
         <button onClick={updateProfile} disabled={!formChanged}>
           Lagre
@@ -146,7 +147,6 @@ export default function Profile() {
 
 export const getServerSideProps = async ({ req }) => {
   const { user } = await supabase.auth.api.getUserByCookie(req);
-  console.log(user);
 
   if (!user) {
     return {

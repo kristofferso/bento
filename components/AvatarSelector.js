@@ -1,24 +1,32 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import { getAvatarUrl } from "../utils/avatars";
 
 export default function AvatarSelector({ handleSelectAvatar }) {
   const [avatarOptions, setAvatarOptions] = useState({
-    shirt: "open",
-    baseColor: "apricot",
-    hair: "pixie",
+    shirt: ["open"],
+    mouth: ["pucker", "smirk", "laughing", "nervous"],
+    baseColor: ["apricot"],
+    hair: ["pixie"],
+    hairColor: ["calm"],
+    eyebrows: ["up"],
     glassesProbability: 0,
-    glassesColor: "black",
+    earringsProbability: 0,
     hairProbability: 100,
+    earrings: ["hoop"],
+    earringColor: ["coast"],
+    glassesColor: ["black"],
   });
 
-  const getRandomAvatarUrls = () =>
-    [...Array(6)].map(() => getAvatarUrl(Math.random(), avatarOptions));
+  const getRandomAvatarUrls = useCallback(() => {
+    return [...Array(6)].map(() => getAvatarUrl(Math.random(), avatarOptions));
+  }, [avatarOptions]);
+
   const [avatarList, setAvatarList] = useState(getRandomAvatarUrls());
 
   useEffect(() => {
     setAvatarList(getRandomAvatarUrls());
-  }, [avatarOptions]);
+  }, [getRandomAvatarUrls]);
 
   return (
     <>
@@ -32,31 +40,24 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           Vis 6 nye
         </button>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <SelectLabel
           label="Hår"
           name="avatarHair"
           id="avatarHair"
           onChange={(e) => {
-            const val = e.target.value;
-            if (val === "none") {
-              setAvatarOptions({
-                ...avatarOptions,
-                hairProbability: 0,
-              });
-            } else {
-              setAvatarOptions({
-                ...avatarOptions,
-                hairProbability: 100,
-                hair: val,
-              });
-            }
+            setAvatarOptions({
+              ...avatarOptions,
+              hair: [e.target.value],
+            });
           }}
         >
           <option value="pixie">Halvlangt</option>
+          <option value="dannyPhantom">Hockey</option>
+          <option value="mrT">Mohawk</option>
           <option value="fonze">Kort sveis</option>
           <option value="full">Langt</option>
-          <option value="none">Ingen</option>
+          <option value="mrClean">Ingen</option>
         </SelectLabel>
 
         <SelectLabel
@@ -66,7 +67,9 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           onChange={(e) => {
             setAvatarOptions({
               ...avatarOptions,
-              baseColor: e.target.value,
+              baseColor: [e.target.value],
+              facialHairColor:
+                e.target.value === "topaz" ? ["black"] : ["topaz"],
             });
           }}
         >
@@ -77,8 +80,28 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           <option value="salmon">Rosa</option>
           <option value="canary">Gul</option>
         </SelectLabel>
+        <SelectLabel
+          label="Hårfarge"
+          id="avatarHairColor"
+          value={avatarOptions.hairColor}
+          onChange={(e) => {
+            setAvatarOptions({
+              ...avatarOptions,
+              hairColor: [e.target.value],
+            });
+          }}
+        >
+          <option value="calm">Lys lilla</option>
+          <option value="canary">Gul</option>
+          <option value="coast">Brun</option>
+          <option value="topaz">Mørk brun</option>
+          <option value="sky">Blå</option>
+          <option value="salmon">Rosa</option>
+          <option value="black">Svart</option>
+          <option value="white">Hvit</option>
+        </SelectLabel>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <SelectLabel
           label="Briller"
           id="avatarGlasses"
@@ -94,7 +117,7 @@ export default function AvatarSelector({ handleSelectAvatar }) {
               setAvatarOptions({
                 ...avatarOptions,
                 glassesProbability: 100,
-                glasses: val,
+                glasses: [val],
               });
             }
           }}
@@ -117,9 +140,7 @@ export default function AvatarSelector({ handleSelectAvatar }) {
               setAvatarOptions({
                 ...avatarOptions,
                 facialHairProbability: 100,
-                facialHair: val,
-                facialHairColor:
-                  avatarOptions.baseColor === "topaz" ? "black" : "topaz",
+                facialHair: [val],
               });
             }
           }}
@@ -128,13 +149,52 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           <option value="beard">Fullt</option>
           <option value="scruff">Skjeggstubber</option>
         </SelectLabel>
+        <SelectLabel
+          label="Detaljer"
+          id="avatarDetails"
+          onChange={(e) => {
+            switch (e.target.value) {
+              case "earring":
+                setAvatarOptions({
+                  ...avatarOptions,
+                  earringsProbability: 100,
+                  eyebrows: ["up"],
+                });
+                break;
+              case "lashes":
+                setAvatarOptions({
+                  ...avatarOptions,
+                  earringsProbability: 0,
+                  eyebrows: ["eyelashesUp"],
+                });
+                break;
+              case "earring-lashes":
+                setAvatarOptions({
+                  ...avatarOptions,
+                  earringsProbability: 100,
+                  eyebrows: ["eyelashesUp"],
+                });
+                break;
+              default:
+                setAvatarOptions({
+                  ...avatarOptions,
+                  earringsProbability: 0,
+                  eyebrows: ["up"],
+                });
+                break;
+            }
+          }}
+        >
+          <option value="none">Ingen</option>
+          <option value="earring">Ørering</option>
+          <option value="lashes">Vipper</option>
+          <option value="earring-lashes">Ørering og vipper</option>
+        </SelectLabel>
       </div>
 
       <hr className="my-4" />
       <ul className="flex list-none flex-wrap justify-around gap-4">
         {avatarList.map((url, i) => {
-          console.log(url, i);
-          const avatar = console.log(avatar);
           return (
             <li key={i} className="flex flex-col items-center gap-2">
               <Avatar src={url} alt="Ny avatar" />

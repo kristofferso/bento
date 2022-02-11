@@ -2,42 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+@font-face {
+  font-family: "DM Serif Display";
+  font-style: normal;
+  src: url("/fonts/DMSerifDisplay-Regular.ttf") format("truetype");
 }
 
-* {
-  box-sizing: border-box;
+shtml,
+body,
+#__next {
+  @apply flex flex-col min-h-full;
 }
 
 h1 {
-  @apply text-2xl font-medium;
+  @apply text-3xl font-medium font-serif;
 }
 h2 {
-  @apply text-xl font-medium;
+  @apply text-2xl font-medium font-serif;
 }
 h3 {
-  @apply text-lg font-medium;
+  @apply text-xl font-medium font-serif;
 }
 h4 {
-  @apply font-medium;
+  @apply text-lg font-medium;
+}
+
+.button-base {
+  @apply py-1.5 px-3 font-serif text-lg rounded-sm;
+}
+
+.button-base-sm {
+  @apply py-0.5 px-2.5 font-serif text-base rounded-sm;
+}
+
+.button-base-primary {
+  @apply bg-gray-900 text-white hover:bg-gray-700 dark:bg-white dark:text-black hover:dark:bg-slate-300;
+}
+
+.button-base-secondary {
+  @apply bg-gray-200 text-black hover:bg-slate-100  dark:bg-slate-700 dark:border-white hover:dark:bg-slate-800 dark:text-white;
 }
 
 button,
-button[type="submit"],
-.button {
-  @apply py-2 px-4 rounded-md bg-teal-400 hover:bg-teal-500;
+button[type="submit"] {
+  @apply button-base button-base-primary;
+}
+
+a.button {
+  @apply button-base button-base-primary leading-9;
+}
+
+button.button-sm,
+button[type="submit"].button-sm {
+  @apply button-base-sm button-base-primary;
+}
+
+a.button.button-sm {
+  @apply button-base-sm button-base-primary;
+}
+
+button.button-secondary,
+.button.button-secondary {
+  @apply button-base button-base-secondary;
+}
+button.button-secondary-sm,
+.button.button-secondary-sm {
+  @apply button-base-sm button-base-secondary;
 }
 
 button:disabled {
-  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  @apply bg-slate-100 text-slate-600 cursor-not-allowed border-slate-300;
 }
 
 input,
 select {
-  @apply border border-gray-300 p-2 rounded-sm focus:bg-gray-100;
+  @apply border-2 border-black px-2 h-10 rounded-sm focus:bg-gray-100 dark:border-gray-500 dark:bg-gray-800 focus:dark:bg-gray-700;
 }

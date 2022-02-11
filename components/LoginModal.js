@@ -7,7 +7,7 @@ const LoginModal = ({ show, setShow }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [success, setSuccess] = useState();
-  const { loginWithEmail } = useUser();
+  const { loginWithEmail, loginWithApple } = useUser();
 
   const handleSignIn = async (e) => {
     setError(null);
@@ -18,7 +18,7 @@ const LoginModal = ({ show, setShow }) => {
       const { error } = await loginWithEmail(email);
       setLoading(false);
       if (error) {
-        setError("Det skjedde en feil! Prøv igjen om et minutt 😢");
+        setError("Det skjedde en feil! Prøv igjen om 1 minutt 😢");
       } else {
         setSuccess(
           "Sjekk e-posten din! Vi har sendt deg en magisk lenke du kan logge inn med 🎉"
@@ -31,12 +31,13 @@ const LoginModal = ({ show, setShow }) => {
     <>
       {show && (
         <Modal
-          onClick={() => {
+          setCloseModal={() => {
             setShow(false);
           }}
         >
-          <div className="flex justify-between mb-4">
-            <h2>Logg inn</h2>
+          <div className="flex justify-between items-center gap-4">
+            <h2>Logg inn eller registrer deg</h2>
+
             <h2
               className="cursor-pointer"
               onClick={() => {
@@ -46,7 +47,14 @@ const LoginModal = ({ show, setShow }) => {
               ✖️
             </h2>
           </div>
-          <form onSubmit={handleSignIn} className="flex flex-col gap-4">
+          <p className="my-2 text-sm">
+            Du vil få en e-post med en lenke for å logge inn eller registrere
+            deg.
+          </p>
+          <form
+            onSubmit={handleSignIn}
+            className="flex flex-col gap-4 max-w-sm"
+          >
             <div className="flex flex-col">
               <label htmlFor="email" className="text-sm mb-1">
                 E-post
@@ -64,8 +72,12 @@ const LoginModal = ({ show, setShow }) => {
               />
             </div>
 
-            <button type="submit" className={`${loading && "bg-teal-300"}`}>
-              {loading ? <p className="animate-spin">↻</p> : "Logg in"}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`${loading && "bg-teal-300"}`}
+            >
+              {loading ? <p className="animate-bounce">•</p> : "Logg in"}
             </button>
             {!error && success && (
               <div className="bg-green-50 rounded-md px-2 py-2 text-green-800">
@@ -80,7 +92,12 @@ const LoginModal = ({ show, setShow }) => {
           </form>
           <hr className="my-2" />
           <p className="text-center">eller</p>
-          <button className="bg-gray-700 text-white hover:bg-gray-800">
+          <button
+            className="bg-gray-700 text-white hover:bg-gray-800"
+            onClick={() => {
+              loginWithApple();
+            }}
+          >
              Logg inn med Apple
           </button>
         </Modal>

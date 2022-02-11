@@ -6,7 +6,7 @@ export default function Avatar({ src, alt, size = "lg", ...props }) {
   };
   return (
     <div
-      className={`rounded-full bg-gray-200 relative overflow-hidden ${styles.size[size]}`}
+      className={`rounded-full bg-slate-100 relative overflow-hidden ${styles.size[size]}`}
     >
       <Image src={src} alt={alt} layout="fill" />
     </div>
