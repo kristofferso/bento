@@ -8,10 +8,8 @@
   src: url("/fonts/DMSerifDisplay-Regular.ttf") format("truetype");
 }
 
-shtml,
-body,
-#__next {
-  @apply flex flex-col min-h-full;
+body {
+  @apply dark:bg-slate-900;
 }
 
 h1 {

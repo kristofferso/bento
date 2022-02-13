@@ -1,7 +1,16 @@
+import {
+  faExclamationTriangle,
+  faMinus,
+  faPlus,
+  faTimesSquare,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Mention from "@tiptap/extension-mention";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
+import Notice from "../../components/elements/Notice";
 import { useUser } from "../../context/user";
 import suggestion from "../../utils/editor/suggestion";
 import DraggableIngredientList from "./../../components/DraggableIngredientList";
@@ -15,10 +24,15 @@ export default function Create() {
   const [newIngredient, setNewIngredient] = useState();
   const [editorContent, setEditorContent] = useState("<p>Hello World!</p>");
   const [showIngredientTip, setShowIngredientTip] = useState(true);
+  const [inputError, setInputError] = useState(false);
+  const [dbError, setDbError] = useState(false);
 
   const { user } = useUser();
+  const router = useRouter();
 
   const handleSubmit = async () => {
+    setInputError(false);
+    setDbError(false);
     if (
       recipeTitle === "" ||
       !recipeDuration ||
@@ -26,9 +40,9 @@ export default function Create() {
       ingredients.length < 1 ||
       editorContent === ""
     ) {
-      console.log("error");
+      setInputError(true);
     } else {
-      const { data, error } = await supabase.from("recipes").insert([
+      const { error } = await supabase.from("recipes").insert([
         {
           title: recipeTitle,
           duration: recipeDuration,
@@ -40,7 +54,12 @@ export default function Create() {
         },
       ]);
 
-      console.log(data, error);
+      if (error) {
+        console.log(error);
+        setDbError(true);
+      } else {
+        router.push("/recipe/create/success");
+      }
     }
   };
 
@@ -146,7 +165,7 @@ export default function Create() {
         >
           <input
             type="text"
-            className="w-96"
+            className="w-96 max-w-full"
             value={recipeTitle}
             onChange={(e) => setRecipeTitle(e.target.value)}
           />
@@ -174,7 +193,7 @@ export default function Create() {
                   )
                 }
               >
-                -
+                <FontAwesomeIcon icon={faMinus} size="sm" />
               </button>
               <input
                 type="text"
@@ -190,7 +209,7 @@ export default function Create() {
                   )
                 }
               >
-                +
+                <FontAwesomeIcon icon={faPlus} size="sm" />
               </button>
             </div>
           </InputLabel>
@@ -209,8 +228,8 @@ export default function Create() {
             </button>
           </div>
           {showIngredientTip && (
-            <div className="flex gap-2 justify-between items-center text-sm py-2 px-3 bg-gray-100 dark:bg-gray-700">
-              <p>
+            <Notice>
+              <p className="text-sm">
                 Mengde og eventuell måleenhet gjenkjennes automatisk, for
                 eksempel med <span className="italic">4 tomater</span> eller
                 <span className="italic"> 550 gram hvetemel</span>. Ingredienser
@@ -220,12 +239,12 @@ export default function Create() {
                 også.
               </p>
               <p
-                className="cursor-pointer"
+                className="cursor-pointer text-xl"
                 onClick={() => setShowIngredientTip(false)}
               >
-                ✖️
+                <FontAwesomeIcon icon={faTimesSquare} />
               </p>
-            </div>
+            </Notice>
           )}
           <form
             className="flex gap-2 items-end mb-2 flex-wrap"
@@ -263,6 +282,14 @@ export default function Create() {
         <EditorContent editor={editor} />
       </div>
       <button onClick={() => handleSubmit()}>Opprett</button>
+      {(inputError || dbError) && (
+        <Notice type="error">
+          <FontAwesomeIcon icon={faExclamationTriangle} />
+          {inputError
+            ? "Du mangler noen felter før du kan opprette oppskriften. Har du fylt inn alle?"
+            : "Det skjedde noe feil ved opprettelse av oppskriften, men det er ikke din feil!"}
+        </Notice>
+      )}
     </div>
   );
 }

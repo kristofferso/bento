@@ -39,11 +39,12 @@ export default function RecipeDetails({ recipe }) {
       setAuthorData(data);
     };
     const getRecipeLikes = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("recipes_likes")
         .select("count")
         .eq("id", recipe.id)
         .maybeSingle();
+
       if (!data) {
         setRecipeLikes({ count: 0 });
       } else {
@@ -52,7 +53,7 @@ export default function RecipeDetails({ recipe }) {
     };
 
     const getUserLike = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("likes")
         .select("id")
         .match({ user_id: user.id, recipe_id: recipe.id })
@@ -77,7 +78,7 @@ export default function RecipeDetails({ recipe }) {
             <Pill>{recipeLevelText(recipe.level)}</Pill>
           </div>
         </div>
-        <div className="flex flex-row-reverse md:flex-col-reverse items-center md:items-end gap-x-8 gap-y-4 flex-grow md:flex-grow-0 justify-between border-t-2 border-black -mx-4 px-4 pt-4 md:border-t-0 md:mx-0 md:p-0">
+        <div className="flex flex-row-reverse md:flex-col-reverse items-center md:items-end gap-x-8 gap-y-4 flex-grow md:flex-grow-0 justify-between border-t-2 border-black dark:border-white -mx-4 px-4 pt-4 md:border-t-0 md:mx-0 md:p-0">
           <div className="flex items-center gap-2">
             {recipeLikes && <Pill>❤︎ {recipeLikes.count}</Pill>}
             {user && (
@@ -106,7 +107,7 @@ export default function RecipeDetails({ recipe }) {
         </div>
       </div>
       {recipe.image_url && (
-        <div className="h-80 w-auto -mx-4 md:mx-0 relative md:rounded-sm overflow-hidden border-y-2 border-black md:border-2">
+        <div className="h-80 w-auto -mx-4 md:mx-0 relative md:rounded-sm overflow-hidden border-y-2 border-black dark:border-white md:border-2">
           <Image
             src={recipe.image_url}
             alt={`Bilde av ${recipe.title}`}
@@ -133,16 +134,20 @@ export default function RecipeDetails({ recipe }) {
   );
 }
 
-export const getStaticPaths = async () => {
-  const { data: recipes } = await supabase.from("recipes").select("id");
+// For static path generation
 
-  const paths = recipes.map(({ id }) => ({ params: { id: id.toString() } }));
-  return { paths, fallback: false };
-};
+// export const getStaticPaths = async () => {
+//   const { data: recipes } = await supabase
+//     .from("recipes_approved")
+//     .select("id");
 
-export const getStaticProps = async ({ params }) => {
+//   const paths = recipes.map(({ id }) => ({ params: { id: id.toString() } }));
+//   return { paths, fallback: false };
+// };
+
+export const getServerSideProps = async ({ params }) => {
   const { data: recipe } = await supabase
-    .from("recipes")
+    .from("recipes_approved")
     .select("*")
     .eq("id", params.id)
     .single();

@@ -11,10 +11,7 @@ export default function Home({ recipes }) {
         {recipes.map((recipe) => (
           // eslint-disable-next-line @next/next/link-passhref
           <Link key={recipe.id} href={`/recipe/${recipe.id}`}>
-            <a
-              className=" rounded-sm flex-grow basis-1 overflow-hidden border-2 border-black dark:border-white hover:bg-slate-100 hover:dark:bg-gray-800"
-              style={{ minWidth: "15rem" }}
-            >
+            <a className="rounded-sm flex-grow min-w-[16rem] basis-1 overflow-hidden border-2 border-black dark:border-white hover:bg-slate-100 hover:dark:bg-gray-800">
               {recipe.image_url && (
                 <div className="relative h-32 w-auto border-b-2 border-black dark:border-white">
                   <Image
@@ -44,7 +41,7 @@ export default function Home({ recipes }) {
 }
 
 export const getStaticProps = async () => {
-  const { data: recipes } = await supabase.from("recipes").select("*");
+  const { data: recipes } = await supabase.from("recipes_approved").select("*");
 
   return { props: { recipes } };
 };

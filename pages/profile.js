@@ -5,6 +5,9 @@ import Modal from "../components/elements/Modal";
 import HorizontalLine from "../components/elements/HorizontalLine";
 import Avatar from "../components/Avatar";
 import AvatarSelector from "../components/AvatarSelector";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfo, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import Notice from "../components/elements/Notice";
 
 export default function Profile() {
   const { user, getUserProfile } = useUser();
@@ -79,15 +82,15 @@ export default function Profile() {
               onChange={handleChange}
             />
           </div>
-          <div className="flex p-4 bg-blue-50 rounded-md items-center gap-3">
-            <div className="flex w-8 h-8 items-center text-xl justify-center bg-blue-300 text-blue-700 rounded-full">
-              ℹ
+          <Notice type="info">
+            <div className="text-2xl">
+              <FontAwesomeIcon icon={faInfoCircle} />
             </div>
-            <p className="flex-1 text-blue-700 text-md">
+            <p className="flex-1  text-md">
               Visningsnavnet og figuren din er offentlig og vises på
               oppskriftene du legger ut.
             </p>
-          </div>
+          </Notice>
         </div>
         <div className="flex flex-col items-start gap-6 pr-8">
           <div className="flex flex-col items-start gap-2">

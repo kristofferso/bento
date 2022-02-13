@@ -1,3 +1,6 @@
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 export default function DraggableIngredientList({
   ingredients,
   setIngredients,
@@ -12,18 +15,24 @@ export default function DraggableIngredientList({
         ingredients.map((ingredient, index) => (
           <li
             key={index}
-            className="hover:bg-yellow-100 dark:hover:bg-yellow-700 rounded-sm cursor-move"
+            className="hover:bg-yellow-100 dark:hover:bg-gray-700 rounded-sm cursor-move border-dashed border-gray-400"
             draggable={true}
             onDragStart={(e, id) => {
               e.dataTransfer.setData("text/plain", index);
             }}
             onDragEnter={(e) => {
+              e.target.classList.add("border");
               e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDragLeave={(e) => {
+              e.target.classList.remove("border");
             }}
             onDragOver={(e) => {
               e.preventDefault();
             }}
             onDrop={(e) => {
+              e.target.classList.remove("border");
               const newList = [...ingredients];
               newList.splice(
                 index,
@@ -53,7 +62,7 @@ export default function DraggableIngredientList({
                   handleRemoveIngredient(index);
                 }}
               >
-                🗑
+                <FontAwesomeIcon icon={faTrashAlt} size="lg" />
               </div>
             </div>
           </li>
