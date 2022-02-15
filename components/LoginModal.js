@@ -31,22 +31,11 @@ const LoginModal = ({ show, setShow }) => {
     <>
       {show && (
         <Modal
-          setCloseModal={() => {
+          title="Logg inn eller registrer deg"
+          handleCloseModal={() => {
             setShow(false);
           }}
         >
-          <div className="flex justify-between items-center gap-4">
-            <h2>Logg inn eller registrer deg</h2>
-
-            <h2
-              className="cursor-pointer"
-              onClick={() => {
-                setShow(false);
-              }}
-            >
-              ✖️
-            </h2>
-          </div>
           <p className="my-2 text-sm">
             Du vil få en e-post med en lenke for å logge inn eller registrere
             deg.

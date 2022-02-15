@@ -13,10 +13,10 @@ import React, { useState } from "react";
 import Notice from "../../components/elements/Notice";
 import { useUser } from "../../context/user";
 import suggestion from "../../utils/editor/suggestion";
-import DraggableIngredientList from "./../../components/DraggableIngredientList";
-import { supabase } from "./../../utils/supabase";
+import DraggableIngredientList from "../../components/DraggableIngredientList";
+import { supabase } from "../../utils/supabase";
 
-export default function Create() {
+export default function New() {
   const [recipeTitle, setRecipeTitle] = useState("");
   const [recipeDuration, setRecipeDuration] = useState(20);
   const [recipePortions, setRecipePortions] = useState(2);
@@ -58,7 +58,7 @@ export default function Create() {
         console.log(error);
         setDbError(true);
       } else {
-        router.push("/recipe/create/success");
+        router.push("/recipe/success");
       }
     }
   };

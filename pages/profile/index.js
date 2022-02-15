@@ -1,17 +1,22 @@
-import { supabase } from "../utils/supabase";
-import { useUser } from "../context/user";
+import { supabase } from "../../utils/supabase";
+import { useUser } from "../../context/user";
 import { useEffect, useState } from "react";
-import Modal from "../components/elements/Modal";
-import HorizontalLine from "../components/elements/HorizontalLine";
-import Avatar from "../components/Avatar";
-import AvatarSelector from "../components/AvatarSelector";
+import Modal from "../../components/elements/Modal";
+import HorizontalLine from "../../components/elements/HorizontalLine";
+import Avatar from "../../components/Avatar";
+import AvatarSelector from "../../components/AvatarSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfo, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import Notice from "../components/elements/Notice";
+import {
+  faExclamationTriangle,
+  faInfoCircle,
+} from "@fortawesome/free-solid-svg-icons";
+import Notice from "../../components/elements/Notice";
+import axios from "axios";
 
 export default function Profile() {
-  const { user, getUserProfile } = useUser();
+  const { user, getUserProfile, logout } = useUser();
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [deleteProfileError, setDeleteProfileError] = useState(false);
   const [profileData, setProfileData] = useState({
     display_name: "",
     avatar_url: "",
@@ -27,6 +32,22 @@ export default function Profile() {
 
     setProfileData({ ...profileData, [name]: value });
     setFormChanged(true);
+  };
+
+  const handleDeleteProfile = async () => {
+    if (
+      confirm(
+        "Er du sikker på at du ønsker å slette brukeren din? Dette kan IKKE angres."
+      )
+    ) {
+      try {
+        await axios.post("/api/delete-user");
+        logout("/profile/deleted");
+      } catch (error) {
+        setDeleteProfileError(true);
+        console.log("error", error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -107,7 +128,9 @@ export default function Profile() {
             </button>
             {showAvatarModal && (
               <Modal
-                setCloseModal={() => {
+                title="Velg figur"
+                width="600"
+                handleCloseModal={() => {
                   setShowAvatarModal(false);
                 }}
               >
@@ -129,12 +152,42 @@ export default function Profile() {
       </div>
       <div className="flex flex-col flex-1 gap-4 items-start">
         <h2>Danger zone</h2>
-        <div className="flex flex-col gap-4 items-start">
-          <p className="">
-            Vil du slette profilen din? Alle dine persondata og oppskrifter vil
-            slettes.
+        <div className="mb-4">
+          <p className="mb-4">
+            Vil du slette profilen din? Alle dine persondata vil slettes og
+            oppskriftene dine vil anonymiseres.
           </p>
-          <button disabled>Slett mine data</button>
+          <button onClick={handleDeleteProfile} className="button-secondary">
+            Slett profilen min og mine persondata
+          </button>
+          {deleteProfileError && (
+            <Notice type="error" className="mt-2">
+              <div className="text-2xl">
+                <FontAwesomeIcon icon={faExclamationTriangle} />
+              </div>
+              <p className="flex-1  text-md">
+                Det skjedde noe feil ved sletting av profilen din.{" "}
+                <a
+                  href="mailto:hei@tataki.no?subject=Sletting av profil fra Bento"
+                  className="underline"
+                >
+                  Ta kontakt med oss på hei@tataki.no
+                </a>{" "}
+                så løser vi det raskt.
+              </p>
+            </Notice>
+          )}
+        </div>
+        <div className="mb-4">
+          <p className="mb-4">
+            Ønsker du å få utlevert en komplett oversikt over dine persondata?
+          </p>
+          <a
+            href="mailto:hei@tataki.no?subject=Utlevering av persondata fra Bento"
+            className="button button-secondary"
+          >
+            Be om mine persondata
+          </a>
         </div>
       </div>
       <HorizontalLine />
@@ -142,7 +195,9 @@ export default function Profile() {
         <button onClick={updateProfile} disabled={!formChanged}>
           Lagre
         </button>
-        {formChanged && <p className="text-gray-600">← Husk å lagre!</p>}
+        {formChanged && (
+          <p className="text-gray-600 dark:text-gray-300">← Husk å lagre!</p>
+        )}
       </div>
     </div>
   );

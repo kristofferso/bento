@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Notice({ type = "default", children }) {
+export default function Notice({ type = "default", children, className = "" }) {
   const style = {
     bg: {
       default: "bg-gray-100 dark:bg-gray-700",
@@ -17,7 +17,7 @@ export default function Notice({ type = "default", children }) {
   };
   return (
     <div
-      className={`flex gap-4 rounded-sm justify-between items-center p-4 ${style.bg[type]} ${style.text[type]}`}
+      className={`flex gap-4 rounded-sm justify-between items-center p-4 ${style.bg[type]} ${style.text[type]} ${className}`}
     >
       {children}
     </div>

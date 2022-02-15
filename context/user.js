@@ -18,10 +18,10 @@ const Provider = ({ children }) => {
     return supabase.auth.signIn({ email });
   };
 
-  const logout = async () => {
+  const logout = async (redirectUrl = "/") => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push("/");
+    router.push(redirectUrl);
   };
 
   const getUserProfile = async () => {

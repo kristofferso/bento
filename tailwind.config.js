@@ -1,3 +1,5 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 module.exports = {
   darkMode: "class",
   content: [
@@ -25,6 +27,7 @@ module.exports = {
         "Noto Color Emoji",
       ],
     },
+    screens: { xs: "400px", ...defaultTheme.screens },
   },
   plugins: [],
 };

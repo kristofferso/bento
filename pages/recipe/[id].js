@@ -1,16 +1,47 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Avatar from "../../components/Avatar";
 import Pill from "../../components/elements/Pill";
 import { supabase } from "../../utils/supabase";
 import { recipeLevelText } from "../../utils/recipeEnums";
 import { useUser } from "../../context/user";
+import { generateHTML } from "@tiptap/react";
+import Document from "@tiptap/extension-document";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
+import Mention from "@tiptap/extension-mention";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faHeart } from "@fortawesome/free-solid-svg-icons";
 
 export default function RecipeDetails({ recipe }) {
   const [authorData, setAuthorData] = useState();
   const [recipeLikes, setRecipeLikes] = useState({ count: 0 });
   const [like, setLike] = useState(false);
   const { user } = useUser();
+
+  const [renderedDescription, setRenderedDescription] = useState();
+  useEffect(() => {
+    try {
+      const parsed = JSON.parse(recipe.description);
+
+      const rendered = generateHTML(parsed, [
+        Document,
+        Paragraph,
+        Text,
+        Mention.configure({
+          HTMLAttributes: {
+            class: "px-1.5 rounded-sm bg-gray-200",
+          },
+          renderLabel({ node }) {
+            return `${node.attrs.label ?? node.attrs.id}`;
+          },
+        }),
+      ]);
+      setRenderedDescription(rendered);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [recipe]);
 
   const handleLike = async () => {
     if (!like) {
@@ -70,7 +101,7 @@ export default function RecipeDetails({ recipe }) {
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-4">
-      <div className="flex items-stretch md:items-center flex-col md:flex-row justify-between gap-6 flex-wrap">
+      <div className="flex items-stretch md:items-center flex-col md:flex-row justify-between gap-6 flex-wrap ">
         <div className="flex flex-col gap-3">
           <h1 className="">{recipe.title}</h1>
           <div className="flex gap-2">
@@ -80,13 +111,25 @@ export default function RecipeDetails({ recipe }) {
         </div>
         <div className="flex flex-row-reverse md:flex-col-reverse items-center md:items-end gap-x-8 gap-y-4 flex-grow md:flex-grow-0 justify-between border-t-2 border-black dark:border-white -mx-4 px-4 pt-4 md:border-t-0 md:mx-0 md:p-0">
           <div className="flex items-center gap-2">
-            {recipeLikes && <Pill>❤︎ {recipeLikes.count}</Pill>}
+            {recipeLikes && (
+              <Pill>
+                <FontAwesomeIcon icon={faHeart} /> {recipeLikes.count}
+              </Pill>
+            )}
             {user && (
               <button
                 className="button-sm button-secondary-sm bg-gray-200"
                 onClick={handleLike}
               >
-                {like ? "Liker ✓" : "Lik ❤︎"}
+                {like ? (
+                  <span className="flex items-center gap-2">
+                    Liker <FontAwesomeIcon icon={faCheck} />
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Lik <FontAwesomeIcon icon={faHeart} />
+                  </span>
+                )}
               </button>
             )}
           </div>
@@ -97,11 +140,13 @@ export default function RecipeDetails({ recipe }) {
                 <p className="">Skrevet av</p>
                 <h4 className="">{authorData.display_name}</h4>
               </div>
-              <Avatar
-                src={authorData?.avatar_url}
-                alt="Forfatter avatar"
-                size="sm"
-              />
+              {authorData.avatar_url && (
+                <Avatar
+                  src={authorData.avatar_url}
+                  alt="Forfatter avatar"
+                  size="sm"
+                />
+              )}
             </div>
           )}
         </div>
@@ -127,7 +172,11 @@ export default function RecipeDetails({ recipe }) {
         </div>
         <div className="flex flex-col">
           <h2 className="">Fremgangsmåte</h2>
-          <p className="">{recipe.description}</p>
+          {renderedDescription && (
+            <div
+              dangerouslySetInnerHTML={{ __html: renderedDescription }}
+            ></div>
+          )}
         </div>
       </div>
     </div>

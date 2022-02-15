@@ -6,7 +6,7 @@ export default function Pill({ children, color = "gray", size = "normal" }) {
   };
   return (
     <div
-      className={`flex gap-2 rounded-full ${styles.bg[color]} ${styles.border[color]} ${styles.size[size]}`}
+      className={`flex items-center gap-2 rounded-full ${styles.bg[color]} ${styles.border[color]} ${styles.size[size]}`}
     >
       {children}
     </div>

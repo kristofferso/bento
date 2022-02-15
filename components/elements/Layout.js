@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import MenuBar from "../MenuBar";
+import Nav from "../Nav";
 
 export default function Layout({ children }) {
   const [darkmode, setDarkmode] = useState();
@@ -25,7 +25,7 @@ export default function Layout({ children }) {
   return (
     <>
       <Head>
-        <title>Hjemmelunsj</title>
+        <title>Bento</title>
         <meta
           name="description"
           content="Gode lunsjer for deg på hjemmekontor"
@@ -35,7 +35,7 @@ export default function Layout({ children }) {
         className={`max-w-3xl mx-auto pb-12 flex flex-col dark:text-white
       `}
       >
-        <MenuBar useDarkmode={{ darkmode, setDarkmode }} />
+        <Nav useDarkmode={{ darkmode, setDarkmode }} />
         <div className="py-24 md:py-0">{children}</div>
       </main>
     </>

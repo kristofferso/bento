@@ -1,5 +1,5 @@
 {
-  "name": "hjemmelunsj",
+  "name": "bento",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,6 +19,7 @@
     "@tiptap/react": "^2.0.0-beta.108",
     "@tiptap/starter-kit": "^2.0.0-beta.183",
     "axios": "^0.25.0",
+    "cookie": "^0.4.2",
     "next": "12.0.9",
     "react": "17.0.2",
     "react-dom": "17.0.2",

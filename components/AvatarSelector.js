@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import { getAvatarUrl } from "../utils/avatars";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default function AvatarSelector({ handleSelectAvatar }) {
   const [avatarOptions, setAvatarOptions] = useState({
@@ -30,17 +32,7 @@ export default function AvatarSelector({ handleSelectAvatar }) {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="">Velg figur</h3>
-        <button
-          onClick={() => {
-            setAvatarList(getRandomAvatarUrls());
-          }}
-        >
-          Vis 6 nye
-        </button>
-      </div>
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-x-4 gap-y-2 flex-wrap">
         <SelectLabel
           label="Hår"
           name="avatarHair"
@@ -101,7 +93,7 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           <option value="white">Hvit</option>
         </SelectLabel>
       </div>
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-x-4 gap-y-2 flex-wrap">
         <SelectLabel
           label="Briller"
           id="avatarGlasses"
@@ -191,20 +183,33 @@ export default function AvatarSelector({ handleSelectAvatar }) {
           <option value="earring-lashes">Ørering og vipper</option>
         </SelectLabel>
       </div>
+      <button
+        className="button-secondary"
+        onClick={() => {
+          setAvatarList(getRandomAvatarUrls());
+        }}
+      >
+        <span className="mr-2">Vis 6 nye</span>{" "}
+        <FontAwesomeIcon icon={faSyncAlt} size="sm" />
+      </button>
 
       <hr className="my-4" />
       <ul className="flex list-none flex-wrap justify-around gap-4">
         {avatarList.map((url, i) => {
           return (
-            <li key={i} className="flex flex-col items-center gap-2">
-              <Avatar src={url} alt="Ny avatar" />
-              <button
-                onClick={() => {
-                  handleSelectAvatar(url);
-                }}
-              >
-                Velg
-              </button>
+            <li
+              key={i}
+              className="flex flex-col items-center gap-2 cursor-pointer"
+              onClick={() => {
+                handleSelectAvatar(url);
+              }}
+            >
+              <Avatar
+                className="border-black dark:border-white border-2"
+                src={url}
+                alt="Ny avatar"
+              />
+              <button className="-mt-6 z-10 button-sm">Velg</button>
             </li>
           );
         })}
