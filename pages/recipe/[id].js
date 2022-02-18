@@ -15,6 +15,8 @@ import OrderedList from "@tiptap/extension-list-item";
 import BulletList from "@tiptap/extension-bullet-list";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faHeart } from "@fortawesome/free-solid-svg-icons";
+import RecipeReadOnlyEditor from "../../components/RecipeReadOnlyEditor";
+import HorizontalLine from "../../components/elements/HorizontalLine";
 
 export default function RecipeDetails({ recipe }) {
   const [authorData, setAuthorData] = useState();
@@ -22,12 +24,11 @@ export default function RecipeDetails({ recipe }) {
   const [like, setLike] = useState(false);
   const { user } = useUser();
 
-  const [renderedDescription, setRenderedDescription] = useState("");
-  useEffect(() => {
+  const renderedDescription = useMemo(() => {
     try {
-      const parsed = JSON.parse(recipe.description);
+      const json = JSON.parse(recipe.description);
 
-      const rendered = generateHTML(parsed, [
+      return generateHTML(json, [
         Document,
         Paragraph,
         Text,
@@ -43,7 +44,6 @@ export default function RecipeDetails({ recipe }) {
           },
         }),
       ]);
-      setRenderedDescription(rendered);
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +107,7 @@ export default function RecipeDetails({ recipe }) {
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-4">
-      <div className="flex items-stretch md:items-center flex-col md:flex-row justify-between gap-6 flex-wrap ">
+      <div className="flex items-stretch md:items-center flex-col md:flex-row justify-between gap-6 flex-wrap md:flex-nowrap ">
         <div className="flex flex-col gap-3">
           <h1 className="">{recipe.title}</h1>
           <div className="flex gap-2">
@@ -157,7 +157,7 @@ export default function RecipeDetails({ recipe }) {
           )}
         </div>
       </div>
-      {recipe.image_url && (
+      {recipe.image_url ? (
         <div className="h-80 w-auto -mx-4 md:mx-0 relative md:rounded-sm overflow-hidden border-y-2 border-black dark:border-white md:border-2">
           <Image
             src={recipe.image_url}
@@ -166,6 +166,8 @@ export default function RecipeDetails({ recipe }) {
             objectFit="cover"
           />
         </div>
+      ) : (
+        <HorizontalLine className="mb-4 md:my-6 -mx-4" />
       )}
       <div className="flex flex-col gap-10">
         <div className="flex flex-col">
@@ -180,11 +182,10 @@ export default function RecipeDetails({ recipe }) {
         </div>
         <div className="flex flex-col">
           <h2 className="">Fremgangsmåte</h2>
-          {renderedDescription && (
-            <div
-              dangerouslySetInnerHTML={{ __html: renderedDescription }}
-            ></div>
-          )}
+          <RecipeReadOnlyEditor
+            editorContent={renderedDescription}
+            dependencies={[recipe]}
+          />
         </div>
       </div>
     </div>
