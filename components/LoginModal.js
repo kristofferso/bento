@@ -69,7 +69,7 @@ const LoginModal = ({ show, setShow }) => {
               {loading ? <p className="animate-bounce">•</p> : "Logg in"}
             </button>
             {!error && success && (
-              <div className="bg-green-50 dark:bg-green-200 rounded-md px-4 py-2 text-green-800">
+              <div className="bg-green-50 dark:bg-green-200 rounded-md px-4 py-2 text-green-900">
                 {success}
               </div>
             )}

@@ -10,6 +10,9 @@ import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
 import Mention from "@tiptap/extension-mention";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-list-item";
+import BulletList from "@tiptap/extension-bullet-list";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faHeart } from "@fortawesome/free-solid-svg-icons";
 
@@ -19,7 +22,7 @@ export default function RecipeDetails({ recipe }) {
   const [like, setLike] = useState(false);
   const { user } = useUser();
 
-  const [renderedDescription, setRenderedDescription] = useState();
+  const [renderedDescription, setRenderedDescription] = useState("");
   useEffect(() => {
     try {
       const parsed = JSON.parse(recipe.description);
@@ -28,6 +31,9 @@ export default function RecipeDetails({ recipe }) {
         Document,
         Paragraph,
         Text,
+        ListItem,
+        OrderedList,
+        BulletList,
         Mention.configure({
           HTMLAttributes: {
             class: "px-1.5 rounded-sm bg-gray-200",
@@ -165,9 +171,11 @@ export default function RecipeDetails({ recipe }) {
         <div className="flex flex-col">
           <h2 className="">Ingredienser</h2>
           <ul className="list-disc list-inside py-2">
-            <li>Brød</li>
-            <li>Test</li>
-            <li>Test</li>
+            {recipe.ingredients.map((ingredient, i) => (
+              <li key={i}>{`${ingredient.quantity || ""} ${
+                ingredient.unit || ""
+              } ${ingredient.name}`}</li>
+            ))}
           </ul>
         </div>
         <div className="flex flex-col">

@@ -1,5 +1,7 @@
-export default function HorizontalLine() {
+export default function HorizontalLine({ className = "" }) {
   return (
-    <div className="border-b-2 border-black dark:border-white -mx-4 w-auto" />
+    <div
+      className={`border-b-2 border-black dark:border-white w-auto ${className}`}
+    />
   );
 }

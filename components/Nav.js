@@ -4,13 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faFootball,
-  faMoon,
-  faSun,
-} from "@fortawesome/free-solid-svg-icons";
-import Logo from "../public/logo.svg";
+import { faBars, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import Logo from "./Logo";
 
 const Nav = ({ useDarkmode }) => {
   const { darkmode, setDarkmode } = useDarkmode;
@@ -29,16 +24,12 @@ const Nav = ({ useDarkmode }) => {
   return (
     <div className="flex justify-between items-center mb-6 p-4 border-b-2 border-black dark:border-white gap-4 w-full bg-white dark:bg-slate-900 fixed md:static z-20">
       <Link href="/">
-        <a className="flex gap-3 items-center">
-          <h1 className="text-3xl xs:text-4xl border-gray-500 dark:border-gray-400 dark:text-white hover:border-b-4 hover:-mb-1">
+        <a className="flex gap-3 items-center group">
+          <h1 className="text-3xl xs:text-4xl border-orange-300  dark:text-white group-hover:border-b-4 group-hover:-mb-1">
             Bento
           </h1>
 
-          <img
-            src="./logo.svg"
-            alt="Bento logo"
-            className="h-8 xs:h-9 -mt-1.5"
-          />
+          <Logo className="h-9 -mt-1" />
         </a>
       </Link>
       <div className="flex gap-4">

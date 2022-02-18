@@ -15,14 +15,19 @@ import { useUser } from "../../context/user";
 import suggestion from "../../utils/editor/suggestion";
 import DraggableIngredientList from "../../components/DraggableIngredientList";
 import { supabase } from "../../utils/supabase";
+import ToggleTag from "../../components/elements/ToggleTag";
+import recipeTagList from "../../utils/recipeTagList";
 
 export default function New() {
   const [recipeTitle, setRecipeTitle] = useState("");
   const [recipeDuration, setRecipeDuration] = useState(20);
   const [recipePortions, setRecipePortions] = useState(2);
   const [ingredients, setIngredients] = useState([]);
-  const [newIngredient, setNewIngredient] = useState();
-  const [editorContent, setEditorContent] = useState("<p>Hello World!</p>");
+  const [newIngredient, setNewIngredient] = useState("");
+  const [recipeTags, setRecipeTags] = useState([]);
+  const [editorContent, setEditorContent] = useState(
+    "<p>Her forklarer du hvordan du går frem for å lage oppskriften...</p>"
+  );
   const [showIngredientTip, setShowIngredientTip] = useState(true);
   const [inputError, setInputError] = useState(false);
   const [dbError, setDbError] = useState(false);
@@ -38,7 +43,8 @@ export default function New() {
       !recipeDuration ||
       !recipePortions ||
       ingredients.length < 1 ||
-      editorContent === ""
+      editorContent === "" ||
+      recipeTags.length < 1
     ) {
       setInputError(true);
     } else {
@@ -50,6 +56,7 @@ export default function New() {
           ingredients,
           description: editorContent,
           user_id: user.id,
+          tags: recipeTags,
           is_approved: false,
         },
       ]);
@@ -63,42 +70,47 @@ export default function New() {
     }
   };
 
-  const handleAddIngredient = (e) => {
-    e.preventDefault();
-    if (newIngredient !== "") {
-      let quantity, unit, name;
-
-      const fullMatch = newIngredient.match(
-        /(\d[\d\s\/,]{0,3})\s{0,1}([A-ø]{1,9})\s(.*)/
-      );
-      console.log(fullMatch);
-      if (fullMatch) {
-        [, quantity, unit, name] = fullMatch;
+  const handleParseIngredient = (ingredient) => {
+    let quantity, unit, name;
+    // const fullMatch = ingredient.match(
+    //   /(\d[\d\s\/,]{0,3})\s{0,1}([A-ø]{1,9})\s(.*)/
+    // );
+    const fullMatch = ingredient.match(
+      /(\d[\d\s\/,\.]{0,3})\s{0,1}(\w{0,9}(liter|gram|gr|gr\.|skjeer|skje|mål)|((kilo|kopp|boks|stk|fedd|klype|kvast|bunt)(er|\.|.{0}))|\w{0,1}s|\w{0,1}l|\w{0,1}g)\s(.*)/
+    );
+    if (fullMatch) {
+      [, quantity, unit, , , , , name] = fullMatch;
+    } else {
+      const nameQuantityMatch = ingredient.match(/(\d[\d\s\/,\.]{0,3})\s(.*)/);
+      console.log(nameQuantityMatch);
+      if (nameQuantityMatch) {
+        [, quantity, name] = nameQuantityMatch;
       } else {
-        const nameQuantityMatch = newIngredient.match(
-          /(\d[\d\s\/,]{0,3})\s(.*)/
-        );
-        console.log(nameQuantityMatch);
-        if (nameQuantityMatch) {
-          [, quantity, name] = nameQuantityMatch;
+        const nameOnlyMatch = ingredient.match(/(.*)/);
+        if (nameOnlyMatch) {
+          [, name] = nameOnlyMatch;
         } else {
-          const nameOnlyMatch = newIngredient.match(/(.*)/);
-          if (nameOnlyMatch) {
-            [, name] = nameOnlyMatch;
-          } else {
-            console.log("NO Match");
-          }
+          console.log("NO Match");
         }
       }
+    }
 
-      const ingredientObject = {
-        name,
-        unit,
-        quantity,
-        inputText: newIngredient,
-      };
+    if (quantity) quantity = parseFloat(quantity.replace(",", "."));
 
-      setIngredients([...ingredients, ingredientObject]);
+    const ingredientObject = {
+      name,
+      unit,
+      quantity,
+      inputText: ingredient,
+    };
+
+    return ingredientObject;
+  };
+
+  const handleSubmitIngredient = (e) => {
+    e.preventDefault();
+    if (newIngredient !== "") {
+      setIngredients([...ingredients, handleParseIngredient(newIngredient)]);
       setNewIngredient("");
     }
   };
@@ -172,12 +184,20 @@ export default function New() {
         </InputLabel>
         <div className="flex flex-wrap gap-x-12 gap-y-4">
           <InputLabel title="Tid" helperText="Hvor lang tid tar det å lage?">
-            <input
-              type="number"
-              className="w-16"
+            <select
+              className="w-18"
               value={recipeDuration}
               onChange={(e) => setRecipeDuration(parseInt(e.target.value))}
-            />
+            >
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+              <option value="60">60+</option>
+            </select>
+
             <span className="ml-3">minutter</span>
           </InputLabel>
           <InputLabel
@@ -214,6 +234,32 @@ export default function New() {
             </div>
           </InputLabel>
         </div>
+        <InputLabel
+          title="Type oppskrift"
+          helperText="Velg opptil 3 som passer din rett"
+        >
+          <div className="flex flex-wrap gap-2 ">
+            {recipeTagList.map((tag, i) => {
+              const selected = recipeTags.includes(tag);
+
+              return (
+                <ToggleTag
+                  key={i}
+                  label={tag}
+                  selected={selected}
+                  color="blue"
+                  onClick={() => {
+                    if (selected) {
+                      setRecipeTags([...recipeTags].filter((i) => i !== tag));
+                    } else {
+                      setRecipeTags([...recipeTags, tag].slice(-3));
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
+        </InputLabel>
       </div>
       <div className="">
         <h2 className="mb-2">Ingredienser</h2>
@@ -248,7 +294,7 @@ export default function New() {
           )}
           <form
             className="flex gap-2 items-end mb-2 flex-wrap"
-            onSubmit={handleAddIngredient}
+            onSubmit={handleSubmitIngredient}
           >
             <input
               type="text"
@@ -257,6 +303,13 @@ export default function New() {
               required
               onChange={(e) => {
                 setNewIngredient(e.target.value);
+              }}
+              onPaste={(e) => {
+                e.preventDefault();
+                const list = e.clipboardData.getData("text/plain").split("\n");
+                const parsed = list.map((item) => handleParseIngredient(item));
+
+                setIngredients([...ingredients, ...parsed]);
               }}
             />
 
@@ -303,3 +356,19 @@ const InputLabel = ({ title, children, ...props }) => (
     </label>
   </>
 );
+
+export const getServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+
+  if (!user) {
+    return {
+      redirect: {
+        permament: false,
+        destination: "/?login=true",
+      },
+      props: {},
+    };
+  }
+
+  return { props: {} };
+};

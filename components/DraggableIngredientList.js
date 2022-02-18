@@ -46,7 +46,7 @@ export default function DraggableIngredientList({
               <div className="flex gap-1 items-start">
                 {ingredient.quantity && (
                   <span className="bg-gray-200 rounded-sm px-1 font-bold dark:bg-gray-700">
-                    {ingredient.quantity}
+                    {ingredient.quantity.toString().replace(".", ",")}
                   </span>
                 )}
                 {ingredient.unit && (
