@@ -1,7 +1,5 @@
 import {
   faExclamationTriangle,
-  faMinus,
-  faPlus,
   faTimesSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,6 +9,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import Notice from "../../components/elements/Notice";
+import Stepper from "../../components/elements/Stepper";
 import { useUser } from "../../context/user";
 import suggestion from "../../utils/editor/suggestion";
 import DraggableIngredientList from "../../components/DraggableIngredientList";
@@ -24,6 +23,7 @@ export default function New() {
   const [recipePortions, setRecipePortions] = useState(2);
   const [ingredients, setIngredients] = useState([]);
   const [newIngredient, setNewIngredient] = useState("");
+  const [newIngredientId, setNewIngredientId] = useState(1);
   const [recipeTags, setRecipeTags] = useState([]);
   const [editorContent, setEditorContent] = useState(
     "<p>Her forklarer du hvordan du går frem for å lage oppskriften...</p>"
@@ -98,11 +98,13 @@ export default function New() {
     if (quantity) quantity = parseFloat(quantity.replace(",", "."));
 
     const ingredientObject = {
+      id: newIngredientId,
       name,
       unit,
       quantity,
       inputText: ingredient,
     };
+    setNewIngredientId(newIngredientId + 1);
 
     return ingredientObject;
   };
@@ -138,16 +140,16 @@ export default function New() {
             return `${node.attrs.label ?? node.attrs.id}`;
           },
           suggestion: {
-            char: "+",
             render: suggestion.render,
             items: ({ query }) => {
-              console.log(ingredients.filter((item) => item.name));
-              return ingredients
-                .map((item) => item.name)
+              const res = ingredients
                 .filter((item) => {
-                  return item.toLowerCase().startsWith(query.toLowerCase());
+                  return item.name
+                    .toLowerCase()
+                    .startsWith(query.toLowerCase());
                 })
                 .slice(0, 5);
+              return res;
             },
           },
         }),
@@ -155,6 +157,7 @@ export default function New() {
       content: editorContent,
       onUpdate: ({ editor }) => {
         setEditorContent(editor.getJSON());
+        console.log(editor.getJSON().content[0].content);
       },
       editorProps: {
         attributes: {
@@ -204,34 +207,18 @@ export default function New() {
             title="Porsjoner"
             helperText="Hvor mange porsjoner blir det?"
           >
-            <div className="flex gap-1">
-              <button
-                className="button-secondary"
-                onClick={() =>
-                  setRecipePortions(
-                    (recipePortions > 0 ? recipePortions : 1) - 1
-                  )
-                }
-              >
-                <FontAwesomeIcon icon={faMinus} size="sm" />
-              </button>
-              <input
-                type="text"
-                value={recipePortions}
-                className="w-20 text-center"
-                onChange={(e) => setRecipePortions(parseInt(e.target.value))}
-              />
-              <button
-                className="button-secondary"
-                onClick={() =>
-                  setRecipePortions(
-                    (recipePortions < 12 ? recipePortions : 11) + 1
-                  )
-                }
-              >
-                <FontAwesomeIcon icon={faPlus} size="sm" />
-              </button>
-            </div>
+            <Stepper
+              handleDecrease={() =>
+                setRecipePortions((recipePortions > 0 ? recipePortions : 1) - 1)
+              }
+              handleIncrease={() =>
+                setRecipePortions(
+                  (recipePortions < 12 ? recipePortions : 11) + 1
+                )
+              }
+              handleChange={(e) => setRecipePortions(parseInt(e.target.value))}
+              value={recipePortions}
+            />
           </InputLabel>
         </div>
         <InputLabel
@@ -328,7 +315,7 @@ export default function New() {
         <h2 className="">Fremgangsmåte</h2>
         <p className="text-sm">
           Bruk{" "}
-          <span className="font-bold px-1 bg-gray-100 dark:text-black">+</span>
+          <span className="font-bold px-1 bg-gray-100 dark:text-black">@</span>
           -tasten for å legge inn ingrediensene direkte i teksten. Da blir det
           enkelt å se riktig mengde for den som leser!
         </p>

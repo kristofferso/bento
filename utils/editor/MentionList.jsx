@@ -13,7 +13,8 @@ export default forwardRef((props, ref) => {
     const item = props.items[index];
 
     if (item) {
-      props.command({ id: item });
+      console.log("ITEM", item, item.id);
+      props.command({ id: item.id, label: item.name });
     }
   };
 
@@ -65,11 +66,11 @@ export default forwardRef((props, ref) => {
             key={index}
             onClick={() => selectItem(index)}
           >
-            {item}
+            {item.name}
           </button>
         ))
       ) : (
-        <div className="">Ingen ingredienser</div>
+        <div className="p-1">Ingen ingredienser</div>
       )}
     </div>
   );

@@ -5,49 +5,20 @@ import Pill from "../../components/elements/Pill";
 import { supabase } from "../../utils/supabase";
 import { recipeLevelText } from "../../utils/recipeEnums";
 import { useUser } from "../../context/user";
-import { generateHTML } from "@tiptap/react";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import Mention from "@tiptap/extension-mention";
-import ListItem from "@tiptap/extension-list-item";
-import OrderedList from "@tiptap/extension-list-item";
-import BulletList from "@tiptap/extension-bullet-list";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faHeart } from "@fortawesome/free-solid-svg-icons";
 import RecipeReadOnlyEditor from "../../components/RecipeReadOnlyEditor";
 import HorizontalLine from "../../components/elements/HorizontalLine";
+import spellOutIngredient from "../../utils/spellOutIngredient";
+import Stepper from "../../components/elements/Stepper";
 
 export default function RecipeDetails({ recipe }) {
   const [authorData, setAuthorData] = useState();
+  const [ingredients, setIngredients] = useState(recipe.ingredients);
+  const [recipePortions, setRecipePortions] = useState(recipe.portions);
   const [recipeLikes, setRecipeLikes] = useState({ count: 0 });
   const [like, setLike] = useState(false);
   const { user } = useUser();
-
-  const renderedDescription = useMemo(() => {
-    try {
-      const json = JSON.parse(recipe.description);
-
-      return generateHTML(json, [
-        Document,
-        Paragraph,
-        Text,
-        ListItem,
-        OrderedList,
-        BulletList,
-        Mention.configure({
-          HTMLAttributes: {
-            class: "px-1.5 rounded-sm bg-gray-200",
-          },
-          renderLabel({ node }) {
-            return `${node.attrs.label ?? node.attrs.id}`;
-          },
-        }),
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [recipe]);
 
   const handleLike = async () => {
     if (!like) {
@@ -169,22 +140,51 @@ export default function RecipeDetails({ recipe }) {
       ) : (
         <HorizontalLine className="mb-4 md:my-6 -mx-4" />
       )}
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-md p-4 flex items-center justify-between">
+        <h4 className="">Antall porsjoner</h4>
+        <Stepper
+          handleDecrease={() => {
+            if (recipePortions > 1) {
+              setIngredients(
+                [...ingredients].map((ingredient, index) => ({
+                  ...ingredient,
+                  quantity:
+                    ingredient.quantity -
+                    recipe.ingredients[index].quantity / recipe.portions,
+                }))
+              );
+              setRecipePortions(recipePortions - 1);
+            }
+          }}
+          handleIncrease={() => {
+            setIngredients(
+              [...ingredients].map((ingredient, index) => ({
+                ...ingredient,
+                quantity:
+                  ingredient.quantity +
+                  recipe.ingredients[index].quantity / recipe.portions,
+              }))
+            );
+            setRecipePortions(recipePortions + 1);
+          }}
+          handleChange={(e) => setRecipePortions(parseInt(e.target.value))}
+          value={recipePortions}
+        />
+      </div>
       <div className="flex flex-col gap-10">
         <div className="flex flex-col">
           <h2 className="">Ingredienser</h2>
           <ul className="list-disc list-inside py-2">
-            {recipe.ingredients.map((ingredient, i) => (
-              <li key={i}>{`${ingredient.quantity || ""} ${
-                ingredient.unit || ""
-              } ${ingredient.name}`}</li>
+            {ingredients.map((ingredient, i) => (
+              <li key={i}>{spellOutIngredient(ingredient)}</li>
             ))}
           </ul>
         </div>
         <div className="flex flex-col">
           <h2 className="">Fremgangsmåte</h2>
           <RecipeReadOnlyEditor
-            editorContent={renderedDescription}
-            dependencies={[recipe]}
+            editorContent={JSON.parse(recipe.description)}
+            ingredients={ingredients}
           />
         </div>
       </div>
