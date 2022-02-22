@@ -143,7 +143,7 @@ export default function Home({ recipes }) {
   );
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
   const { data: recipes } = await supabase.from("recipes_approved").select("*");
 
   return { props: { recipes: recipes || [] } };

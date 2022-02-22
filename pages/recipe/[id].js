@@ -175,9 +175,10 @@ export default function RecipeDetails({ recipe }) {
         <div className="flex flex-col">
           <h2 className="">Ingredienser</h2>
           <ul className="list-disc list-inside py-2">
-            {ingredients.map((ingredient, i) => (
-              <li key={i}>{spellOutIngredient(ingredient)}</li>
-            ))}
+            {ingredients &&
+              ingredients.map((ingredient, i) => (
+                <li key={i}>{spellOutIngredient(ingredient)}</li>
+              ))}
           </ul>
         </div>
         <div className="flex flex-col">

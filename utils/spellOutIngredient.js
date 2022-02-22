@@ -1,5 +1,7 @@
 const spellOutIngredient = (ingredient) => {
-  return `${ingredient.quantity || ""} ${ingredient.unit || ""} ${
+  return `${
+    typeof ingredient?.quantity !== "undefined" && ingredient.quantity
+  } ${(typeof ingredient?.unit !== "undefined" && ingredient.unit) || ""} ${
     ingredient.name
   }`;
 };
