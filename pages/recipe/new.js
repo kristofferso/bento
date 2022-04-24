@@ -23,7 +23,6 @@ export default function New() {
   const [recipePortions, setRecipePortions] = useState(2);
   const [ingredients, setIngredients] = useState([]);
   const [newIngredient, setNewIngredient] = useState("");
-  const [newIngredientId, setNewIngredientId] = useState(1);
   const [recipeTags, setRecipeTags] = useState([]);
   const [editorContent, setEditorContent] = useState(
     "<p>Her forklarer du hvordan du går frem for å lage oppskriften...</p>"
@@ -70,19 +69,17 @@ export default function New() {
     }
   };
 
-  const handleParseIngredient = (ingredient) => {
+  const handleParseIngredient = (ingredient, ingredientId) => {
     let quantity, unit, name;
-    // const fullMatch = ingredient.match(
-    //   /(\d[\d\s\/,]{0,3})\s{0,1}([A-ø]{1,9})\s(.*)/
-    // );
+
     const fullMatch = ingredient.match(
-      /(\d[\d\s\/,\.]{0,3})\s{0,1}(\w{0,9}(liter|gram|gr|gr\.|skjeer|skje|mål)|((kilo|kopp|boks|stk|fedd|klype|kvast|bunt)(er|\.|.{0}))|\w{0,1}s|\w{0,1}l|\w{0,1}g)\s(.*)/
+      /(\d[\d\s\/,\.]{0,3})\s{0,1}(\w{0,9}(liter|gram|gr|gr\.|skjeer|skje|mål)|((kilo|kopp|boks|stk|stykk|fedd|klype|klyp|kvast|kvist|bunt)(er|\.|.{0}))|\w{0,1}s|\w{0,1}l|\w{0,1}g)\s(.*)/
     );
     if (fullMatch) {
       [, quantity, unit, , , , , name] = fullMatch;
     } else {
       const nameQuantityMatch = ingredient.match(/(\d[\d\s\/,\.]{0,3})\s(.*)/);
-      console.log(nameQuantityMatch);
+
       if (nameQuantityMatch) {
         [, quantity, name] = nameQuantityMatch;
       } else {
@@ -90,29 +87,35 @@ export default function New() {
         if (nameOnlyMatch) {
           [, name] = nameOnlyMatch;
         } else {
-          console.log("NO Match");
+          console.log("No match for", ingredient);
         }
       }
     }
 
-    if (quantity) quantity = parseFloat(quantity.replace(",", "."));
+    if (quantity) {
+      quantity = parseFloat(quantity.replace(",", "."));
+    }
+
+    name = name.trim();
 
     const ingredientObject = {
-      id: newIngredientId,
+      id: ingredientId,
       name,
       unit,
       quantity,
       inputText: ingredient,
     };
-    setNewIngredientId(newIngredientId + 1);
 
     return ingredientObject;
   };
 
-  const handleSubmitIngredient = (e) => {
-    e.preventDefault();
-    if (newIngredient !== "") {
-      setIngredients([...ingredients, handleParseIngredient(newIngredient)]);
+  const handleAddIngredient = () => {
+    if (newIngredient.trim() !== "") {
+      const newIngredientId = ingredients.length + 1;
+      setIngredients([
+        ...ingredients,
+        handleParseIngredient(newIngredient, newIngredientId),
+      ]);
       setNewIngredient("");
     }
   };
@@ -137,6 +140,7 @@ export default function New() {
             class: "px-1.5 rounded-sm bg-gray-200",
           },
           renderLabel({ node }) {
+            console.log(node);
             return `${node.attrs.label ?? node.attrs.id}`;
           },
           suggestion: {
@@ -144,9 +148,7 @@ export default function New() {
             items: ({ query }) => {
               const res = ingredients
                 .filter((item) => {
-                  return item.name
-                    .toLowerCase()
-                    .startsWith(query.toLowerCase());
+                  return item.name.toLowerCase().includes(query.toLowerCase());
                 })
                 .slice(0, 5);
               return res;
@@ -157,7 +159,21 @@ export default function New() {
       content: editorContent,
       onUpdate: ({ editor }) => {
         setEditorContent(editor.getJSON());
-        console.log(editor.getJSON().content[0].content);
+        console.log(
+          "used ingredients",
+          editor
+            .getJSON()
+            .content.map((line) => {
+              if ("content" in line && line.content.length > 0) {
+                return line.content.filter(
+                  (item) => item?.attrs?.["id"] && item.type === "mention"
+                );
+              }
+            })
+            .filter((line) => line)
+            .flat()
+            .map((line) => line.attrs.id)
+        );
       },
       editorProps: {
         attributes: {
@@ -279,10 +295,7 @@ export default function New() {
               </p>
             </Notice>
           )}
-          <form
-            className="flex gap-2 items-end mb-2 flex-wrap"
-            onSubmit={handleSubmitIngredient}
-          >
+          <div className="flex gap-2 items-end mb-2 flex-wrap">
             <input
               type="text"
               value={newIngredient}
@@ -293,22 +306,31 @@ export default function New() {
               }}
               onPaste={(e) => {
                 e.preventDefault();
+                const newIngredientId = ingredients.length + 1;
                 const list = e.clipboardData.getData("text/plain").split("\n");
-                const parsed = list.map((item) => handleParseIngredient(item));
-
+                const parsed = list
+                  .map((item, index) => {
+                    return handleParseIngredient(item, newIngredientId + index);
+                  })
+                  .filter((ingredient) => ingredient.name);
                 setIngredients([...ingredients, ...parsed]);
               }}
             />
 
-            <button type="submit" className="flex-shrink-0">
+            <button
+              type="submit"
+              className="flex-shrink-0"
+              onClick={handleAddIngredient}
+            >
               Legg til
             </button>
-          </form>
+          </div>
         </div>
 
         <DraggableIngredientList
           ingredients={ingredients}
           setIngredients={setIngredients}
+          editorContent={editorContent}
         />
       </div>
       <div className="">
@@ -336,7 +358,7 @@ export default function New() {
 
 const InputLabel = ({ title, children, ...props }) => (
   <>
-    <label htmlFor="" className="">
+    <label htmlFor={title} className="">
       <p className="font-medium">{title}</p>
       {props.helperText && <p className="text-sm mb-1.5">{props.helperText}</p>}
       {children}

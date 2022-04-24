@@ -13,9 +13,9 @@ export default function Stepper({
         <FontAwesomeIcon icon={faMinus} size="sm" />
       </button>
       <input
-        type="text"
+        type="number"
         value={value}
-        className="w-20 text-center"
+        className="w-20 text-center pl-5"
         onChange={handleChange}
       />
       <button className="button-secondary" onClick={handleIncrease}>

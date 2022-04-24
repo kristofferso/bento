@@ -4,9 +4,34 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default function DraggableIngredientList({
   ingredients,
   setIngredients,
+  editorContent,
 }) {
-  const handleRemoveIngredient = (index) => {
-    setIngredients(ingredients.filter((i, num) => num !== index));
+  const handleRemoveIngredient = (id) => {
+    if (typeof editorContent === "object") {
+      const ingredientsInEditor = editorContent.content
+        .map((line) => {
+          if ("content" in line && line.content.length > 0) {
+            return line.content.filter(
+              (item) => item?.attrs?.["id"] && item.type === "mention"
+            );
+          }
+        })
+        .filter((line) => line)
+        .flat()
+        .map((line) => line.attrs.id);
+
+      if (ingredientsInEditor.includes(id)) {
+        alert(
+          "Du kan ikke slette en ingrediens du har brukt i teksten. Fjern ingrediensen fra teksten før du sletter den."
+        );
+      } else {
+        setIngredients(
+          ingredients.filter((ingredient) => ingredient.id !== id)
+        );
+      }
+    } else {
+      setIngredients(ingredients.filter((ingredient) => ingredient.id !== id));
+    }
   };
 
   return (
@@ -59,7 +84,7 @@ export default function DraggableIngredientList({
               <div
                 className="cursor-pointer text-xs"
                 onClick={() => {
-                  handleRemoveIngredient(index);
+                  handleRemoveIngredient(ingredient.id);
                 }}
               >
                 <FontAwesomeIcon icon={faTrashAlt} size="lg" />

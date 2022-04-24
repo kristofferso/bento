@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import spellOutIngredient from "../spellOutIngredient";
 
 // eslint-disable-next-line react/display-name
 export default forwardRef((props, ref) => {
@@ -13,8 +14,7 @@ export default forwardRef((props, ref) => {
     const item = props.items[index];
 
     if (item) {
-      console.log("ITEM", item, item.id);
-      props.command({ id: item.id, label: item.name });
+      props.command({ id: item.id, label: spellOutIngredient(item) });
     }
   };
 
